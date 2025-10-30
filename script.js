@@ -1,4 +1,11 @@
-const svg = d3.select("#graph");
+// === Setup Layers ===
+// Create two SVG layers: grid (static) + graph (dynamic)
+const baseSVG = d3.select("#graph");
+const gridLayer = baseSVG.append("g").attr("id", "gridLayer");
+const graphLayer = baseSVG.append("g").attr("id", "graphLayer");
+const svg = graphLayer; // rest of the code will draw on this layer
+
+// === Buttons and Modals ===
 const visualizeBtn = document.getElementById("visualizeBtn");
 const resetBtn = document.getElementById("resetBtn");
 const exampleBtn = document.getElementById("exampleBtn");
@@ -23,6 +30,30 @@ window.onclick = e => {
 
 let running = false;
 
+// === Draw Permanent Grid Background ===
+const defs = baseSVG.append("defs");
+const pattern = defs.append("pattern")
+  .attr("id", "grid")
+  .attr("width", 30)
+  .attr("height", 30)
+  .attr("patternUnits", "userSpaceOnUse");
+
+pattern.append("rect")
+  .attr("width", 30)
+  .attr("height", 30)
+  .attr("fill", "none");
+
+pattern.append("path")
+  .attr("d", "M30 0 H0 V30")
+  .attr("stroke", "#00ffff22")
+  .attr("stroke-width", 1);
+
+gridLayer.append("rect")
+  .attr("width", "100%")
+  .attr("height", "100%")
+  .attr("fill", "url(#grid)");
+
+// === Button Functions ===
 exampleBtn.addEventListener("click", () => {
   document.getElementById("nodes").value = 6;
   document.getElementById("edges").value = "1 2\n2 3\n4 5\n5 6";
@@ -30,7 +61,7 @@ exampleBtn.addEventListener("click", () => {
 
 resetBtn.addEventListener("click", () => {
   running = false;
-  svg.selectAll("*").remove();
+  graphLayer.selectAll("*").remove(); // Only clear graph, keep grid visible
   document.getElementById("nodes").value = "";
   document.getElementById("edges").value = "";
   document.getElementById("legend").innerHTML = "";
@@ -45,6 +76,7 @@ visualizeBtn.addEventListener("click", () => {
   runVisualization(n, edges);
 });
 
+// === Compute Connected Components ===
 function computeComponents(adj, n) {
   const visited = Array(n + 1).fill(false);
   let count = 0;
@@ -67,9 +99,10 @@ function computeComponents(adj, n) {
   return count;
 }
 
+// === Visualization ===
 async function runVisualization(n, edges) {
   running = true;
-  svg.selectAll("*").remove();
+  graphLayer.selectAll("*").remove(); // Clear only graph content
 
   const adj = Array.from({ length: n + 1 }, () => []);
   for (const [u, v] of edges) {
@@ -87,7 +120,7 @@ async function runVisualization(n, edges) {
     .style("text-shadow","0 0 5px #00ff66")
     .text(`Friend Groups: ${total}`);
 
-  // Arrange nodes in circular layout
+  // === Circular Node Layout ===
   const centerX = 350, centerY = 280, radius = 200;
   const nodes = Array.from({ length: n }, (_, i) => {
     const angle = (2 * Math.PI / n) * i;
@@ -103,16 +136,16 @@ async function runVisualization(n, edges) {
     target: nodes[v - 1]
   }));
 
-  // Draw static base edges
+  // === Static Edges ===
   svg.selectAll(".link")
     .data(links).enter().append("line")
     .attr("x1", d => d.source.x).attr("y1", d => d.source.y)
     .attr("x2", d => d.target.x).attr("y2", d => d.target.y)
-    .attr("stroke", "#005577")
+    .attr("stroke", "#007788")
     .attr("stroke-width", 2)
     .attr("stroke-linecap", "round");
 
-  // Draw nodes
+  // === Nodes ===
   const node = svg.selectAll(".node")
     .data(nodes).enter().append("g").attr("class","node");
   node.append("circle").attr("r", 18).attr("fill", "#0b1a2b").attr("stroke", "#00ffff");
@@ -122,6 +155,7 @@ async function runVisualization(n, edges) {
   const visited = Array(n + 1).fill(false);
   const ANIM_DURATION = 350;
 
+  // === DFS Coloring Animation ===
   async function dfs(start, color) {
     if (!running) return;
     visited[start] = true;
@@ -153,14 +187,14 @@ async function runVisualization(n, edges) {
   }
   running = false;
 
-  // ⚡ Start dot flow animation on all edges
+  // === Continuous Flowing Dots ===
   startFlowingDots(links);
 }
 
-// Function to create continuously flowing dots
+// === Flowing Dots Effect ===
 function startFlowingDots(links) {
   links.forEach((link, i) => {
-    createFlow(link, i * 200); // staggered start
+    createFlow(link, i * 200);
   });
 }
 
@@ -181,12 +215,13 @@ function createFlow(link, delay) {
        .ease(d3.easeLinear)
        .attr("cx", link.target.x)
        .attr("cy", link.target.y)
-       .on("end", animateDot); // loop animation
+       .on("end", animateDot);
   }
 
   animateDot();
 }
 
+// === Legend ===
 function drawLegend(colors, count) {
   const legend = d3.select("#legend");
   legend.selectAll("*").remove();
