@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Group Chat Clusters — AlgoVibe</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+  <header class="header">
+    <h1 class="contest-name">AlgoVibe</h1>
+    <h2>Group Chat Clusters: <span class="accent">Who's Connected to Whom?</span></h2>
+    <p class="subtitle">Find Friend Groups using DFS & Water Flow Animation</p>
+  </header>
+
+  <div class="btn-top">
+    <button id="problemBtn">📘 Problem Statement</button>
+    <button id="sampleBtn">🧩 Sample Test Cases</button>
+    <button id="collabBtn">👥 Collaborators</button>
+  </div>
+
+  <div class="container">
+    <!-- Visualization -->
+    <div class="panel left-panel">
+      <svg id="graph" width="700" height="550"></svg>
+      <div id="legend" class="legend-panel"></div>
+    </div>
+
+    <!-- Text Input Panel -->
+    <div class="panel right-panel">
+      <h2>Input</h2>
+      <div class="input-section">
+        <label for="nodes">Number of Students:</label>
+        <input id="nodes" type="number" value="6" min="1" max="100" />
+
+        <label for="edges">Connections (u v pairs):</label>
+        <textarea id="edges" rows="6" placeholder="Enter edges, e.g.:
+1 2
+2 3
+4 5
+5 6"></textarea>
+
+        <div class="btn-group">
+          <button id="visualizeBtn">💧 Visualize</button>
+          <button id="resetBtn">🔄 Reset</button>
+          <button id="exampleBtn">⭐ Load Example</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Problem Modal -->
+  <div id="problemModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeProblem">&times;</span>
+      <h2>Problem Statement</h2>
+      <p>
+        Students send direct messages forming an undirected graph where edges represent communication between two people.
+        <br><br>
+        Some students are part of large interconnected friend groups while others are isolated or in small clusters.
+        Count how many separate friend groups exist by finding connected components.
+      </p>
+      <h3>Technical Challenge</h3>
+      <p>
+        Use DFS or BFS to identify all connected components. Each component represents one friend group.
+        The visualization shows the graph with water-like flow across connected nodes, coloring each cluster differently.
+      </p>
+      <h3>Input Format</h3>
+      <pre>
+n m
+u v  (m lines)
+      </pre>
+      <h3>Output Format</h3>
+      <pre>Number of separate friend groups</pre>
+    </div>
+  </div>
+
+  <!-- Sample Modal -->
+  <div id="sampleModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeSample">&times;</span>
+      <h2>Sample Test Cases</h2>
+      <pre>
+Input:
+6 4
+1 2
+2 3
+4 5
+5 6
+
+Output:
+2
+      </pre>
+      <p>Explanation:  
+Students {1,2,3} form one group and {4,5,6} form another group.</p>
+    </div>
+  </div>
+
+  <!-- Collaborators Modal -->
+  <div id="collabModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeCollab">&times;</span>
+      <h2>Collaborators</h2>
+      <div class="collab-container">
+        <div class="collab-card">
+          <h3>Avyav Saraf</h3>
+          <p>Leader</p>
+        </div>
+        <div class="collab-card">
+          <h3>Aryan Jain</h3>
+          <p>Member</p>
+        </div>
+        <div class="collab-card">
+          <h3>Amogh S</h3>
+          <p>Member</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Made with 💙 for AlgoVibe Contest</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
