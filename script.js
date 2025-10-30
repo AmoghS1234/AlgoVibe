@@ -87,7 +87,7 @@ async function runVisualization(n, edges) {
     .style("text-shadow","0 0 5px #00ff66")
     .text(`Friend Groups: ${total}`);
 
-  // Arrange nodes in circular layout (to avoid overlapping)
+  // Arrange nodes in circular layout
   const centerX = 350, centerY = 280, radius = 200;
   const nodes = Array.from({ length: n }, (_, i) => {
     const angle = (2 * Math.PI / n) * i;
@@ -103,12 +103,16 @@ async function runVisualization(n, edges) {
     target: nodes[v - 1]
   }));
 
+  // Draw static base edges
   svg.selectAll(".link")
     .data(links).enter().append("line")
     .attr("x1", d => d.source.x).attr("y1", d => d.source.y)
     .attr("x2", d => d.target.x).attr("y2", d => d.target.y)
-    .attr("stroke", "#0077ff").attr("stroke-width", 1.5);
+    .attr("stroke", "#005577")
+    .attr("stroke-width", 2)
+    .attr("stroke-linecap", "round");
 
+  // Draw nodes
   const node = svg.selectAll(".node")
     .data(nodes).enter().append("g").attr("class","node");
   node.append("circle").attr("r", 18).attr("fill", "#0b1a2b").attr("stroke", "#00ffff");
@@ -148,6 +152,39 @@ async function runVisualization(n, edges) {
     if (!visited[i]) await dfs(i, colors[ci++ % colors.length]);
   }
   running = false;
+
+  // ⚡ Start dot flow animation on all edges
+  startFlowingDots(links);
+}
+
+// Function to create continuously flowing dots
+function startFlowingDots(links) {
+  links.forEach((link, i) => {
+    createFlow(link, i * 200); // staggered start
+  });
+}
+
+function createFlow(link, delay) {
+  const color = "#00ffff";
+
+  const dot = svg.append("circle")
+    .attr("r", 3)
+    .attr("fill", color)
+    .style("filter", `drop-shadow(0 0 6px ${color})`);
+
+  function animateDot() {
+    dot.attr("cx", link.source.x)
+       .attr("cy", link.source.y)
+       .transition()
+       .delay(delay)
+       .duration(2000)
+       .ease(d3.easeLinear)
+       .attr("cx", link.target.x)
+       .attr("cy", link.target.y)
+       .on("end", animateDot); // loop animation
+  }
+
+  animateDot();
 }
 
 function drawLegend(colors, count) {
